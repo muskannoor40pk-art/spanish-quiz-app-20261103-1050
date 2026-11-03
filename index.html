@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactivo</title>
+    
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+    <div id="quiz-screen">
+        <div class="info">
+            <span id="timer">Tiempo: 15s</span>
+            <span id="question-count">Pregunta 1/5</span>
+        </div>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <h2 id="question">Cargando pregunta...</h2>
+        <div id="options" class="options"></div>
+    </div>
+
+    <div id="score-screen" class="hidden">
+        <h1>¡Quiz Finalizado!</h1>
+        <p id="final-score" style="font-size: 1.25rem; margin-bottom: 1rem;"></p>
+        <button class="btn-restart" onclick="location.reload()">Reiniciar Quiz</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "¿Cuál es el lenguaje de programación más utilizado para la web?", a: ["Python", "JavaScript", "C++", "Java"], correct: 1 },
+        { q: "¿Qué significa HTML?", a: ["HyperText Markup Language", "High Tech Modern Language", "Hyperlink Text Markup Language", "Home Tool Markup Language"], correct: 0 },
+        { q: "¿Qué propiedad de CSS se usa para cambiar el color de fondo?", a: ["color", "bg-color", "background-color", "bgcolor"], correct: 2 },
+        { q: "¿Cuál es el símbolo utilizado para IDs en CSS?", a: [".", "#", "@", "&"], correct: 1 },
+        { q: "¿Qué navegador es desarrollado por Google?", a: ["Safari", "Firefox", "Edge", "Chrome"], correct: 3 }
+    ];
+
+    let currentIdx = 0, score = 0, timeLeft = 15, timer;
+
+    const el = (id) => document.getElementById(id);
+
+    function startTimer() {
+        timeLeft = 15;
+        el('timer').textContent = `Tiempo: ${timeLeft}s`;
+        clearInterval(timer);
+        timer = setInterval(() => {
+            timeLeft--;
+            el('timer').textContent = `Tiempo: ${timeLeft}s`;
+            if (timeLeft <= 0) handleAnswer(-1);
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        if (currentIdx >= questions.length) return showResults();
+        
+        const q = questions[currentIdx];
+        el('question').textContent = q.q;
+        el('question-count').textContent = `Pregunta ${currentIdx + 1}/${questions.length}`;
+        el('progress-bar').style.width = `${(currentIdx / questions.length) * 100}%`;
+        
+        const container = el('options');
+        container.innerHTML = '';
+        q.a.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.textContent = opt;
+            btn.onclick = () => handleAnswer(i);
+            container.appendChild(btn);
+        });
+        startTimer();
+    }
+
+    function handleAnswer(idx) {
+        clearInterval(timer);
+        if (idx === questions[currentIdx].correct) score++;
+        currentIdx++;
+        loadQuestion();
+    }
+
+    function showResults() {
+        el('quiz-screen').classList.add('hidden');
+        el('score-screen').classList.remove('hidden');
+        el('final-score').textContent = `Tu puntuación final es: ${score} de ${questions.length}`;
+    }
+
+    loadQuestion();
+</script>
+</body>
+</html>
